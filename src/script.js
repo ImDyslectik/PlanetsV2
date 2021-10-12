@@ -253,6 +253,7 @@ const renderer = new THREE.WebGLRenderer({
     precision:true
 })
 
+
 /*
 * standaard audioplayer van three.js , je moet btw dubbel klikken voor de audio om te starten vanwege chrome policy
 *de gecommente lijn is voor funny muziek
