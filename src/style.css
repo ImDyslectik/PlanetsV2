@@ -2,15 +2,8 @@
 {
     margin: 0;
     padding: 0;
+    background-color: black;
 }
-
-html,
-body
-{
-    height: 100vh;
-    font-family: 'Poppins';
-}
-
 .webgl
 {
     position: fixed;
