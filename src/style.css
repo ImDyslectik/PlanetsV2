@@ -2,7 +2,7 @@
 {
     margin: 0;
     padding: 0;
-    background-color: black;
+    background-color: white;
 }
 .webgl
 {
@@ -10,4 +10,17 @@
     top: 0;
     left: 0;
     outline: none;
+}
+canvas{
+    background-color: aqua;
+}
+button{
+    font-size: 100px;
+    color: black;
+    position:absolute;
+transform: translateX(500px);}
+a{
+    font-size: 20px;
+    position: absolute;
+    transform: translateY(900px);
 }
