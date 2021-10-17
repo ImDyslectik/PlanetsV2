@@ -1,19 +1,19 @@
 import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import * as dat from 'dat.gui'
 import { BasicShadowMap, Group, Vector3, WireframeGeometry } from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 
-let camera,container,scene,renderer,overlay
+let camera,container,scene,renderer,overlay,startButton
 let max = 30;
 let min = 2.5;
 let scalerMax = 5
 let scalerMin = 0.5
+let mouseY = 0
+let mouseX = 0
 
-const startButton = document.getElementById( 'startButton' );
+startButton = document.getElementById( 'startButton' );
 startButton.addEventListener( 'click', main );
 
 function main(){
@@ -80,13 +80,6 @@ const galaxymat2 = new THREE.PointsMaterial({
     transparent:true,
     color: 'violet',
 })
-const galaxymat3 = new THREE.PointsMaterial({
-    size:0.01,
-    transparent:false,
-    color: 'grey',
-})
-
-
 
 //galaxy background 1
 const galaxyGeo = new THREE.SphereBufferGeometry(20,64,32)
@@ -118,10 +111,6 @@ const galaxy2 = new THREE.Points(galaxyGeo2,galaxySun)
 * en zon 2 heeft identieke eigenschappen en dezelfde locatie zodat de 2 spheres door elkaar heen clippen wat er best wel cool uitziet
 */
 //Zonnen
-
-
-
-
 const material = new THREE.MeshStandardMaterial({color : 0xff5349})
 const geometry = new THREE.SphereBufferGeometry(.5,32,32)
 
@@ -149,11 +138,9 @@ material1.emissive = new THREE.Color(1, 105/255, 180/255),material1.emissiveInte
 Pink.position.set(-3,4,20)
 planets.add(Pink);
 
-    
-    var rngPosX;
-    var rngPosY;
-    
-    var scaler;
+var rngPosX;
+var rngPosY;
+var scaler;
 function randomPos(){
     const planetCount = 30;
     for(let i = 0; i < planetCount; i++){
@@ -177,7 +164,6 @@ function randomPos(){
         scene.add(planeten)  
     }
 } randomPos()
-
 
 function randomLight(){
     const planetCount = 10;
@@ -206,11 +192,10 @@ function randomLight(){
 }randomLight()
 
 const earthGeo = new THREE.SphereBufferGeometry(1,32,32)
-    const earthMat = new THREE.MeshToonMaterial({color : 0x49ef4})
-    const Earth = new THREE.Mesh(earthGeo,earthMat)
-    Earth.position.set(rngPosX,rngPosY,15)
-    earthMat.normalMap = earthNormal;
-  
+const earthMat = new THREE.MeshToonMaterial({color : 0x49ef4})
+const Earth = new THREE.Mesh(earthGeo,earthMat)
+Earth.position.set(rngPosX,rngPosY,15)
+earthMat.normalMap = earthNormal;
 
 //Planeet 2
 const moonGeo = new THREE.SphereBufferGeometry(.2,32,32)
@@ -254,20 +239,19 @@ const vec3 = new Vector3(0,0,0)
 //inladen van objecten
 const sideObj = new THREE.Group()
 const firstPersonObj = new THREE.Group()
-    const gltfLoader = new GLTFLoader();
-    const url = 'Objects/scene.gltf';      
-    gltfLoader.load(url, (gltf) => {
-      const root = gltf.scene;
-      root.scale.multiplyScalar(1/20) 
-      root.position.set(0,1.5,-10)
-      root.rotateY(1.55)
-      root.receiveShadow = true;
-      firstPersonObj.add(root)
-      camera.lookAt(vec3)
+const gltfLoader = new GLTFLoader();
+const url = 'Objects/scene.gltf';      
+gltfLoader.load(url, (gltf) => {
+    const root = gltf.scene;
+    root.scale.multiplyScalar(1/20) 
+    root.position.set(0,1.5,-10)
+    root.rotateY(1.55)
+    root.receiveShadow = true;
+    firstPersonObj.add(root)
+    camera.lookAt(vec3)
 
-      root.add(camera)
+    root.add(camera)
 });
-
 //aaaah
 //dit moet ik nog effe net als de random planeten in een ding zetten enzo 
 //dan kan ik 10 ervan neerzeteen en dat is wel cool
@@ -280,9 +264,7 @@ gltfLoader2.load(url2, (gltf2) => {
     root2.position.set(-1,2,-10)
     root2.rotateY(1.75)
     sideObj.add(root2)
-  });
-
-
+});
 const gltfLoader3 = new GLTFLoader();
 const url3 = 'Objects/scene.gltf';      
 gltfLoader3.load(url3, (gltf3) => {
@@ -303,7 +285,6 @@ scene.add(galaxy2,galaxyMesh2)
 scene.add(son)
 scene.add(sideObj)
 scene.add(firstPersonObj)
-
 
 //maakt de lichten aan met kleur en afstand zodat het er mooi uitziet
 //de pointlighthelper zijn in principe om te debuggen maar ik vind het wel mooi eruit zien dus heb ik het erin gelaten
@@ -346,11 +327,8 @@ window.addEventListener('resize', () =>
     renderer.setSize(sizes.width, sizes.height)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
-
-/*
-* maakt de camera aan met een standaarpositie
-* controls maakt een orbital controler aan zodat je rond kan vliegen in de scene met behulp van import van three.js :)
-*/
+//maakt de camera aan met een standaarpositie
+//controls maakt een orbital controler aan zodat je rond kan vliegen in de scene met behulp van import van three.js :)
 camera = new THREE.PerspectiveCamera(100, sizes.width / sizes.height, 0.1, 200)
 camera.position.x = 11.5,camera.position.y = 2,camera.position.z = 0.5
 
@@ -376,18 +354,13 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 renderer.setClearColor(new THREE.Color('#000000'),1)
 
 document.addEventListener('mousemove', animteGalaxy)
-let mouseY = 0
-let mouseX = 0
-
 function animteGalaxy(event){
     mouseX = event.clientX
     mouseY = event.clientY
 }
-/*
-* tick heeft de functie om altijd te blijven refreshen
-* hierin bevinden zich de planeet rotaties omdat dit altijd geupdate moet worden
-* dit stats is voor de fps counter
-*/
+//tick heeft de functie om altijd te blijven refreshen
+//hierin bevinden zich de planeet rotaties omdat dit altijd geupdate moet worden
+//dit stats is voor de fps counter
 const stats = Stats()
 document.body.appendChild(stats.dom)
 const clock = new THREE.Clock()
@@ -400,7 +373,6 @@ function tick()
         Earth.rotation.z = .4*elapsedTime
         camera.rotation.y = mouseY * 0.002  
         camera.rotation.x = mouseX * -0.002  
-        // firstPersonObj.translateZ(0.000002*mouseY);
         firstPersonObj.translateZ(0.002);
         sideObj.translateZ(0.002);
 
@@ -411,4 +383,4 @@ function tick()
         window.requestAnimationFrame(tick)
     }tick()
 }
-//470 lines nu 414 dus beetje winst zonder de .obj dingen te doen, nice
+//470 lines nu 386 dus beetje winst zonder de .obj dingen te doen, nice
