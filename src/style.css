@@ -4,6 +4,9 @@
     padding: 0;
     background-color: white;
 }
+html{
+    background-color: #333;
+}
 .webgl
 {
     position: fixed;
@@ -11,16 +14,17 @@
     left: 0;
     outline: none;
 }
-canvas{
-    background-color: aqua;
-}
 button{
-    font-size: 100px;
-    color: black;
+    font-size: 50px;
+    color: #333;
     position:absolute;
-transform: translateX(500px);}
+    transform: translateX(680px);}
+    
 a{
     font-size: 20px;
     position: absolute;
     transform: translateY(900px);
+    width: 100%;
+    height: 80px;
+    
 }
