@@ -69,7 +69,6 @@ function main(){
         transparent:true,
         color: 'violet',
     })
-    //galaxy background 1
     const galaxyGeo = new THREE.SphereBufferGeometry(20,64,32)
     const galaxyParticles = new THREE.BufferGeometry;
     const galaxyParticles2 = new THREE.BufferGeometry;
@@ -88,13 +87,7 @@ function main(){
     galaxyParticles2.setAttribute('position', new THREE.BufferAttribute(posArray2, 3))
     const galaxy2 = new THREE.Points(galaxyGeo,galaxySun)
     const galaxy = new THREE.Points(galaxyGeo,galaxySun)
-
-    /*elke planeet heeft een ...Geo dus geometry met positie en de hoeken van de cirkel
-    * daarnaast hebben ze een mesh ofterwel een mat(eriaal) met de kleur en eigenschappen maar die heb ik eronder gezet
-    * tot slot komt het samen tot de planeetmesh waarin dus bovenstaande eigenschappen worden meegegeven
-    * en zon 1 en 2 hebben een emmisive map en emmision als eigenschap zodat het lijkt alsof het een zon is/ meer gloeit
-    * en zon 2 heeft identieke eigenschappen en dezelfde locatie zodat de 2 spheres door elkaar heen clippen wat er best wel cool uitziet
-    */
+    
     const material = new THREE.MeshStandardMaterial({color : 0xff5349})
     const geometry = new THREE.SphereBufferGeometry(.5,32,32)
 
@@ -111,7 +104,6 @@ function main(){
     scene.add(son);
     
     const planets = new THREE.Group();
-
     const geometry1 = new THREE.SphereBufferGeometry(1,32,32)
     const material1 = new THREE.MeshStandardMaterial({
         color : 0xFF69B4,
@@ -234,7 +226,6 @@ function main(){
         firstPersonObj.add(root)
         root.add(camera)
     });
-    //maakt random schepen aan en geeft die een plek
     function loader(){
         for(let i = 0; i < 4; i++){
             const posX = Math.floor(Math.random() * (scalerMax - scalerMin + 1)) + scalerMin;
@@ -249,8 +240,6 @@ function main(){
             });
         }
     }loader()
-    //onderstaande voegt alle objecten toe aan de scene
-    //son.add voegt dingen aan de groep toe zodat ik ze als geheel kan laten draaien
     son.add(Jupiter)
     son.add(Mars)
     scene.add(galaxy,galaxyMesh)
@@ -259,8 +248,6 @@ function main(){
     scene.add(sideObj)
     scene.add(firstPersonObj)
 
-    //maakt de lichten aan met kleur en afstand zodat het er mooi uitziet
-    //de pointlighthelper zijn in principe om te debuggen maar ik vind het wel mooi eruit zien dus heb ik het erin gelaten
     const L1 = new THREE.PointLight(0xff0000, 10,500,10)
     L1.position.set(0,-5,0,1)
     const L2 = new THREE.PointLight(0xffa500, 10,500,5)
@@ -280,7 +267,6 @@ function main(){
     lights.add(L3)
     scene.add(lights)
 
-    //maakt het formaat van het canvas ik weet alleen niet hoe je het moet resizen
     const sizes = {
         width: window.innerWidth,
         height: window.innerHeight
@@ -295,29 +281,23 @@ function main(){
         renderer.setSize(sizes.width, sizes.height)
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     })
-    //maakt de camera aan met een standaarpositie
     camera = new THREE.PerspectiveCamera(100, sizes.width / sizes.height, 0.1, 200)
-    camera.position.x = 11.5,camera.position.y = 2,camera.position.z = 0.5,camera.far = 5000
-
+    camera.position.set(11.5,2,0.5,5000)
     const listener = new THREE.AudioListener();
     camera.add( listener );
     const sound = new THREE.Audio( listener );
     const audiPlayer = new THREE.AudioLoader();
+    //verander cosmic met : Imperial 
     audiPlayer.load( 'Music/cosmic.mp3', function( buffer ) {
         sound.setLoop(true);
         sound.setBuffer(buffer)
         sound.setVolume(0.05);
         sound.play();
     });
-
-    //let mousex zorgt dat je met je muis de galaxy particles kan bewegen
     renderer.setSize(sizes.width, sizes.height)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     renderer.setClearColor(new THREE.Color('#000000'),1)
-
-    //tick heeft de functie om altijd te blijven refreshen
-    //hierin bevinden zich de planeet rotaties omdat dit altijd geupdate moet worden
-    //dit stats is voor de fps counter
+    
     const stats = Stats()
     document.body.appendChild(stats.dom)
     const clock = new THREE.Clock()
@@ -328,12 +308,11 @@ function main(){
             galaxyMesh.rotation.y =  elapsedTime * 0.000004
             galaxyMesh2.rotation.z = .000002  * elapsedTime
             Earth.rotation.z = .4*elapsedTime
-            firstPersonObj.translateZ(0.02);
+            firstPersonObj.translateZ(0.002);
             sideObj.translateZ(0.002);
             renderer.render(scene, camera)
             stats.update()
             window.requestAnimationFrame(tick)
         }tick()
 }
-//skybox maken
 //470 lines nu 386 dus beetje winst zonder de .obj dingen te doen, nice nu nog maar 339 lesgooo
