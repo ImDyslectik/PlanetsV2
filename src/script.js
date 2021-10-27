@@ -1,17 +1,19 @@
 import './style.css'
 import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { DragControls } from 'three/examples/jsm/controls/DragControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { BasicShadowMap, Group, Vector3, WireframeGeometry } from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
+
 
 let camera,container,scene,renderer,overlay,startButton
 let max = 30;
 let min = 2.5;
 let scalerMax = 5
 let scalerMin = 0.5
-let mouseY = 0
-let mouseX = 0
+let scale = 1;
+let mouseX = 0;
+let mouseY = 0;
 
 startButton = document.getElementById( 'startButton' );
 startButton.addEventListener( 'click', main );
@@ -30,7 +32,6 @@ container.appendChild( renderer.domElement );
 
 //weet niet welke cooler is rgbd of srgb
 renderer.outputEncoding = THREE.RGBDEncoding;
-
 //afbeelding textures en texture lader
 const textureLoader = new THREE.TextureLoader()
 const sunNormal = textureLoader.load('/Textures/2k_sun.jpg')
@@ -54,15 +55,8 @@ const createEmissiveMap = function(){
         emissiveCanvas.strokeRect(1, 1, canvas.width - 1, canvas.height - 1);
     });
 };
-
 // Scene
 scene = new THREE.Scene();
-{
-//   const color = 0xbea7b2;  
-//   const near = 5;
-//   const far = 80;
-//   scene.fog = new THREE.Fog(color, near, far);
-}
 
 //maakt galaxy aan
 const galaxySun = new THREE.PointsMaterial({
@@ -80,7 +74,6 @@ const galaxymat2 = new THREE.PointsMaterial({
     transparent:true,
     color: 'violet',
 })
-
 //galaxy background 1
 const galaxyGeo = new THREE.SphereBufferGeometry(20,64,32)
 const galaxyParticles = new THREE.BufferGeometry;
@@ -199,25 +192,32 @@ earthMat.normalMap = earthNormal;
 
 //Planeet 2
 const moonGeo = new THREE.SphereBufferGeometry(.2,32,32)
-const moonMat = new THREE.MeshStandardMaterial({color : 'grey'})
+const moonMat = new THREE.MeshStandardMaterial({
+    color: 'grey',
+    normalMap:moonNormal
+})
 const Moon = new THREE.Mesh(moonGeo,moonMat)
-Moon.position.x = 0.2,Moon.position.y = 0.2,Moon.position.z = planDist
-moonMat.normalMap = moonNormal;
+Moon.position.set(0.2,0.2,planDist)
 planets.add(Moon);
 
 //Mars
 const marsGeo = new THREE.SphereBufferGeometry(.4,32,32)
-const marsMat = new THREE.MeshStandardMaterial({color : 0xbea7b2})
+const marsMat = new THREE.MeshStandardMaterial({
+    color : 0xbea7b2,
+    normalMap:marsNormal
+})
 const Mars = new THREE.Mesh(marsGeo,marsMat)
-Mars.position.x = -4,Mars.position.y = 4
-marsMat.normalMap = marsNormal;
+Mars.position.set(-4,4,0)
 planets.add(Mars);
 
 //Jupiter
 const jupiterGeo = new THREE.SphereBufferGeometry(4,32,32)
-const jupiterMat = new THREE.MeshStandardMaterial({color : 'brown'})
+const jupiterMat = new THREE.MeshStandardMaterial({
+    color : 'brown',
+    normalMap:jupNormal
+})
 const Jupiter = new THREE.Mesh(jupiterGeo,jupiterMat)
-Jupiter.position.x = 6.5,Jupiter.position.y = -6.5,jupiterMat.normalMap = jupNormal;
+Jupiter.position.set(6.5,-6.5) 
 planets.add(Jupiter);
 
 
@@ -233,8 +233,16 @@ const planetsWithRing = new THREE.Group()
 planetsWithRing.add(PlanetWithRing,planetRing)
 scene.add(planetsWithRing)
 
-//dit is voor camera dingen maar moet vervangen woorden door een dragcamera
-const vec3 = new Vector3(0,0,0)
+    
+
+document.addEventListener( "mousemove", mouseMove, false );
+function mouseMove( event ) {
+    mouseX = - ( event.clientX / window.innerWidth ) * 10 + 1;
+    mouseY = + ( event.clientY / window.innerHeight ) * 10 + 1;
+
+    camera.rotation.x = mouseY / scale;
+    camera.rotation.y = mouseX / scale;
+}
 
 //inladen van objecten
 const sideObj = new THREE.Group()
@@ -248,8 +256,6 @@ gltfLoader.load(url, (gltf) => {
     root.rotateY(1.55)
     root.receiveShadow = true;
     firstPersonObj.add(root)
-    camera.lookAt(vec3)
-
     root.add(camera)
 });
 //aaaah
@@ -328,20 +334,14 @@ window.addEventListener('resize', () =>
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 //maakt de camera aan met een standaarpositie
-//controls maakt een orbital controler aan zodat je rond kan vliegen in de scene met behulp van import van three.js :)
 camera = new THREE.PerspectiveCamera(100, sizes.width / sizes.height, 0.1, 200)
-camera.position.x = 11.5,camera.position.y = 2,camera.position.z = 0.5
+camera.position.x = 11.5,camera.position.y = 2,camera.position.z = 0.5,camera.far = 5000
 
-// const controls = new OrbitControls(camera, container)
-// controls.enableDamping = true
-// controls.dampingFactor = 0.05
-
-//standaard audioplayer van three.js , je moet btw spam klikken voor de audio om te starten vanwege chrome policy
 const listener = new THREE.AudioListener();
 camera.add( listener );
 const sound = new THREE.Audio( listener );
 const audiPlayer = new THREE.AudioLoader();
-audiPlayer.load( 'Music/cosmic.mp3', function( buffer ) {
+audiPlayer.load( 'Music/Imperial.mp3', function( buffer ) {
 	sound.setLoop(true);
     sound.setBuffer(buffer)
 	sound.setVolume(0.05);
@@ -353,11 +353,11 @@ renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 renderer.setClearColor(new THREE.Color('#000000'),1)
 
-document.addEventListener('mousemove', animteGalaxy)
-function animteGalaxy(event){
-    mouseX = event.clientX
-    mouseY = event.clientY
-}
+// document.addEventListener('mousemove', animteGalaxy)
+// function animteGalaxy(event){
+//     mouseX = event.clientX
+//     mouseY = event.clientY
+// }
 //tick heeft de functie om altijd te blijven refreshen
 //hierin bevinden zich de planeet rotaties omdat dit altijd geupdate moet worden
 //dit stats is voor de fps counter
@@ -371,8 +371,6 @@ function tick()
         galaxyMesh.rotation.y =  elapsedTime * 0.000004
         galaxyMesh2.rotation.z = .000002  * elapsedTime
         Earth.rotation.z = .4*elapsedTime
-        camera.rotation.y = mouseY * 0.002  
-        camera.rotation.x = mouseX * -0.002  
         firstPersonObj.translateZ(0.002);
         sideObj.translateZ(0.002);
 
@@ -383,4 +381,6 @@ function tick()
         window.requestAnimationFrame(tick)
     }tick()
 }
+
+//skybox maken
 //470 lines nu 386 dus beetje winst zonder de .obj dingen te doen, nice
