@@ -196,28 +196,10 @@ function main() {
 		color: 0x49ef4,
 		normalMap: earthNormal,
 	});
-	// const moonMat = new THREE.MeshStandardMaterial({
-	// 	color: "grey",
-	// 	normalMap: moonNormal,
-	// });
-	// const marsMat = new THREE.MeshStandardMaterial({
-	// 	color: 0xbea7b2,
-	// 	normalMap: marsNormal,
-	// });
-	// const jupiterMat = new THREE.MeshStandardMaterial({
-	// 	color: "brown",
-	// 	normalMap: jupNormal,
-	// });
 
 	const Earth = new THREE.Mesh(planetGeo2, earthMat);
-	// const Moon = new THREE.Mesh(planetGeo2, moonMat);
-	// const Mars = new THREE.Mesh(planetGeo2, marsMat);
-	// const Jupiter = new THREE.Mesh(planetGeo2, jupiterMat);
 
 	Earth.position.set(rngPosX, rngPosY, 15);
-	// Moon.position.set(0.2, 0.2, planDist);
-	// Mars.position.set(-4, 4, 0);
-	// Jupiter.position.set(6.5, -6.5);
 
 	// Make planets
 	const moon = makePlanet(0.2, 32, 32, "grey", moonNormal, 0.2, 0.2, planDist);
