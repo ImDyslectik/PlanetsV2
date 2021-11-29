@@ -61,7 +61,6 @@ function main() {
 		});
 	};
 	scene = new THREE.Scene();
-
 	const galaxySun = new THREE.PointsMaterial({
 		size: 0.005,
 	});
@@ -133,64 +132,6 @@ function main() {
 	Pink.position.set(-3, 4, 20);
 	planets.add(Pink);
 
-	function randomPos() {
-		const planetCount = 30;
-		for (let i = 0; i < planetCount; i++) {
-			rngPosX = Math.floor(Math.random() * (max - min + 1)) + min;
-			rngPosY = Math.floor(Math.random() * (max - min + 1)) + min;
-			scaler =
-				Math.floor(Math.random() * (scalerMax - scalerMin + 1)) + scalerMin;
-
-			const planetMat = new THREE.MeshPhysicalMaterial({
-				color: 0x49ef4,
-				metalness: 0.9,
-				clearcoat: 1.0,
-				clearcoatRoughness: 0.1,
-				roughness: 0.5,
-				normalMap: marsNormal,
-			});
-			const planetGeo = new THREE.SphereBufferGeometry(scaler, 32, 32);
-			const planet = new THREE.Mesh(planetGeo, planetMat);
-			planet.position.set(-rngPosX, rngPosY, rngPosX + planDist);
-			const planeten = new THREE.Group(planetGeo, planetMat);
-			planeten.add(planet);
-			scene.add(planeten);
-		}
-	}
-	randomPos();
-
-	function randomLight() {
-		const planetCount = 10;
-		for (let i = 0; i < planetCount; i++) {
-			rngPosX = Math.floor(Math.random() * (max - min + 2)) + min;
-			rngPosY = Math.floor(Math.random() * (max - min - 2)) + min;
-			scaler =
-				Math.floor(Math.random() * (scalerMax - scalerMin + 1)) + scalerMin;
-
-			const planetMat1 = new THREE.MeshPhysicalMaterial({
-				color: 0xffffff,
-				metalness: 0.9,
-				clearcoat: 1.0,
-				clearcoatRoughness: 0.1,
-				roughness: 0.5,
-				normalMap: marsNormal,
-				emissive: new THREE.Color(1, 0, 0),
-				emissiveIntensity: 1,
-			});
-			const planetGeo1 = new THREE.SphereBufferGeometry(scaler, 32, 32);
-			const planet1 = new THREE.Mesh(planetGeo1, planetMat1);
-			const planeten1 = new THREE.Group(planetGeo1, planetMat1);
-
-			const ambientLight = new THREE.AmbientLight("grey", 0.1);
-			ambientLight.position.set(1, 1, 2);
-			scene.add(ambientLight);
-			planeten1.add(planet1);
-			planet1.position.set(rngPosX, rngPosY, planDist * rngPosX);
-			scene.add(planeten1);
-		}
-	}
-	randomLight();
-
 	const planetGeo2 = new THREE.SphereBufferGeometry(scaler, 32, 32);
 	const earthMat = new THREE.MeshToonMaterial({
 		color: 0x49ef4,
@@ -218,12 +159,6 @@ function main() {
 	scene.add(planetRing);
 
 	document.addEventListener("mousemove", mouseMove, false);
-	function mouseMove(event) {
-		mouseX = -(event.clientX / window.innerWidth) * 10 + 1;
-		mouseY = +(event.clientY / window.innerHeight) * 10 + 1;
-		camera.rotation.x = mouseY / scale;
-		camera.rotation.y = mouseX / scale;
-	}
 
 	const sideObj = new THREE.Group();
 	const firstPersonObj = new THREE.Group();
@@ -238,6 +173,8 @@ function main() {
 		firstPersonObj.add(root);
 		root.add(camera);
 	});
+
+	//dit stuk is nogal moeilijk om te laten overerfen i.v.m. het groep idee en de translaties van de schepen
 	function loader() {
 		for (let i = 0; i < 4; i++) {
 			const posX =
@@ -253,7 +190,10 @@ function main() {
 			});
 		}
 	}
+	
 	loader();
+	randomLight();
+	randomPos();
 	son.add(jupiter);
 	son.add(mars);
 	scene.add(galaxy, galaxyMesh);
@@ -305,7 +245,7 @@ function main() {
 	camera.add(listener);
 	const sound = new THREE.Audio(listener);
 	const audiPlayer = new THREE.AudioLoader();
-	//verander cosmic met : Imperial
+	//verander cosmic met : Imperialz
 	audiPlayer.load("Music/cosmic.mp3", function (buffer) {
 		sound.setLoop(true);
 		sound.setBuffer(buffer);
@@ -325,7 +265,7 @@ function main() {
 		galaxyMesh.rotation.y = elapsedTime * 0.000004;
 		galaxyMesh2.rotation.z = 0.000002 * elapsedTime;
 		Earth.rotation.z = 0.4 * elapsedTime;
-		firstPersonObj.translateZ(0.002);
+		firstPersonObj.translateZ(0.02);
 		sideObj.translateZ(0.002);
 		renderer.render(scene, camera);
 		stats.update();
@@ -360,4 +300,70 @@ function makePlanet(
 
 	return planet;
 }
-//470 lines nu 386 dus beetje winst zonder de .obj dingen te doen, nice nu nog maar 339 lesgooo
+
+function randomPos() {
+	const planetCount = 30;
+	textureLoader = new THREE.TextureLoader();
+	const marsNormal = textureLoader.load("/Textures/NormalMapMars.png");
+	for (let i = 0; i < planetCount; i++) {
+		rngPosX = Math.floor(Math.random() * (max - min + 1)) + min;
+		rngPosY = Math.floor(Math.random() * (max - min + 1)) + min;
+		scaler =
+			Math.floor(Math.random() * (scalerMax - scalerMin + 1)) + scalerMin;
+
+		const planetMat = new THREE.MeshPhysicalMaterial({
+			color: 0x49ef4,
+			metalness: 0.9,
+			clearcoat: 1.0,
+			clearcoatRoughness: 0.1,
+			roughness: 0.5,
+			normalMap: marsNormal,
+		});
+		const planetGeo = new THREE.SphereBufferGeometry(scaler, 32, 32);
+		const planet = new THREE.Mesh(planetGeo, planetMat);
+		planet.position.set(-rngPosX, rngPosY, rngPosX + planDist);
+		const planeten = new THREE.Group(planetGeo, planetMat);
+		planeten.add(planet);
+		scene.add(planeten);
+	}
+}
+
+function randomLight() {
+	const planetCount = 10;
+	textureLoader = new THREE.TextureLoader();
+	const marsNormal = textureLoader.load("/Textures/NormalMapMars.png");
+	for (let i = 0; i < planetCount; i++) {
+		rngPosX = Math.floor(Math.random() * (max - min + 2)) + min;
+		rngPosY = Math.floor(Math.random() * (max - min - 2)) + min;
+		scaler =
+			Math.floor(Math.random() * (scalerMax - scalerMin + 1)) + scalerMin;
+
+		const planetMat1 = new THREE.MeshPhysicalMaterial({
+			color: 0xffffff,
+			metalness: 0.9,
+			clearcoat: 1.0,
+			clearcoatRoughness: 0.1,
+			roughness: 0.5,
+			normalMap: marsNormal,
+			emissive: new THREE.Color(1, 0, 0),
+			emissiveIntensity: 1,
+		});
+		const planetGeo1 = new THREE.SphereBufferGeometry(scaler, 32, 32);
+		const planet1 = new THREE.Mesh(planetGeo1, planetMat1);
+		const planeten1 = new THREE.Group(planetGeo1, planetMat1);
+
+		const ambientLight = new THREE.AmbientLight("grey", 0.1);
+		ambientLight.position.set(1, 1, 2);
+		scene.add(ambientLight);
+		planeten1.add(planet1);
+		planet1.position.set(rngPosX, rngPosY, planDist * rngPosX);
+		scene.add(planeten1);
+	}
+}
+
+function mouseMove(event) {
+	mouseX = -(event.clientX / window.innerWidth) * 10 + 1;
+	mouseY = +(event.clientY / window.innerHeight) * 10 + 1;
+	camera.rotation.x = mouseY / scale;
+	camera.rotation.y = mouseX / scale;
+}
