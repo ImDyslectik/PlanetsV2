@@ -46,8 +46,19 @@ function main() {
 	const jupNormal = textureLoader.load("/Textures/NormalMapJupiter.png");
 	const marsNormal = textureLoader.load("/Textures/NormalMapMars.png");
 	const moonNormal = textureLoader.load("/Textures/NormalMap.png");
+	const planets = new THREE.Group();
+	const son = new THREE.Group();
+	const sideObj = new THREE.Group();
+	const firstPersonObj = new THREE.Group();
+	const gltfLoader = new GLTFLoader();
+	const clock = new THREE.Clock();
+	const stats = Stats();
+	const sizes = {
+		width: window.innerWidth,
+		height: window.innerHeight,
+	};
 
-	createCanvasTexture = function (draw) {
+	function initCanvas(){createCanvasTexture = function (draw) {
 		const canvas = document.createElement("canvas"),
 			emissiveCanvas = canvas.getContext("2d");
 		draw(emissiveCanvas, canvas);
@@ -59,110 +70,93 @@ function main() {
 			emissiveCanvas.strokeStyle = emissiveMap.getStyle();
 			emissiveCanvas.strokeRect(1, 1, canvas.width - 1, canvas.height - 1);
 		});
-	};
+	};}
+	initCanvas();
+	
+	
 	scene = new THREE.Scene();
-	const galaxySun = new THREE.PointsMaterial({
-		size: 0.005,
-	});
-	const galaxymat = new THREE.PointsMaterial({
-		size: 0.5,
-		map: cross,
-		transparent: true,
-		color: "cyan",
-	});
-	const galaxymat2 = new THREE.PointsMaterial({
-		size: 0.5,
-		map: cross,
-		transparent: true,
-		color: "violet",
-	});
-	const galaxyGeo = new THREE.SphereBufferGeometry(20, 64, 32);
-	const galaxyParticles = new THREE.BufferGeometry();
-	const galaxyParticles2 = new THREE.BufferGeometry();
+	
+	function makeGalaxy(){
+			const galaxySun = new THREE.PointsMaterial({
+			size: 0.005,
+		});
+		const galaxymat = new THREE.PointsMaterial({
+			size: 0.5,
+			map: cross,
+			transparent: true,
+			color: "cyan",
+		});
+		const galaxymat2 = new THREE.PointsMaterial({
+			size: 0.5,
+			map: cross,
+			transparent: true,
+			color: "violet",
+		});
+		const galaxyGeo = new THREE.SphereBufferGeometry(20, 64, 32);
+		const galaxyParticles = new THREE.BufferGeometry();
+		const galaxyParticles2 = new THREE.BufferGeometry();
 
-	const galaxyMesh = new THREE.Points(galaxyParticles, galaxymat);
-	const galaxyMesh2 = new THREE.Points(galaxyParticles2, galaxymat2);
-	const particlesCount = 50000;
-	const posArray = new Float32Array(particlesCount * 3);
-	const posArray2 = new Float32Array(particlesCount * 3);
+		const galaxyMesh = new THREE.Points(galaxyParticles, galaxymat);
+		const galaxyMesh2 = new THREE.Points(galaxyParticles2, galaxymat2);
+		const particlesCount = 50000;
+		const posArray = new Float32Array(particlesCount * 3);
+		const posArray2 = new Float32Array(particlesCount * 3);
 
-	for (let i = 0; i < particlesCount * 3; i++) {
-		posArray[i] = (Math.random() - 0.5) * (Math.random() * 100);
-		posArray2[i] = (Math.random() - 0.5) * (Math.random() * 100);
+		for (let i = 0; i < particlesCount * 3; i++) {
+			posArray[i] = (Math.random() - 0.5) * (Math.random() * 100);
+			posArray2[i] = (Math.random() - 0.5) * (Math.random() * 100);
+		}
+		galaxyParticles.setAttribute(
+			"position",
+			new THREE.BufferAttribute(posArray, 3)
+		);
+		galaxyParticles2.setAttribute(
+			"position",
+			new THREE.BufferAttribute(posArray2, 3)
+		);
+		const galaxy2 = new THREE.Points(galaxyGeo, galaxySun);
+		const galaxy = new THREE.Points(galaxyGeo, galaxySun);
+		scene.add(galaxy, galaxyMesh);
+		scene.add(galaxy2, galaxyMesh2);
 	}
-	galaxyParticles.setAttribute(
-		"position",
-		new THREE.BufferAttribute(posArray, 3)
-	);
-	galaxyParticles2.setAttribute(
-		"position",
-		new THREE.BufferAttribute(posArray2, 3)
-	);
-	const galaxy2 = new THREE.Points(galaxyGeo, galaxySun);
-	const galaxy = new THREE.Points(galaxyGeo, galaxySun);
+	makeGalaxy();
 
-	const material = new THREE.MeshStandardMaterial({ color: 0xff5349 });
+
 	const geometry = new THREE.SphereBufferGeometry(0.5, 32, 32);
-
+	const material = new THREE.MeshStandardMaterial({ color: 0xff5349 });
 	const Sun = new THREE.Mesh(geometry, material);
 	(material.roughness = 1),
-		(material.metalness = 0.5),
-		(material.normalMap = sunNormal);
+	(material.metalness = 0.5),
+	(material.normalMap = sunNormal);
 	(material.emissive = new THREE.Color(1, 0, 0)),
-		(material.emissiveIntensity = 1);
+	(material.emissiveIntensity = 1);
 	geometry.createEmissiveMap = createEmissiveMap();
-	const Sun2 = new THREE.Mesh(geometry, material);
 
-	const son = new THREE.Group(geometry, material);
-	son.position.y = 4;
-	son.add(Sun);
-	son.add(Sun2);
-	scene.add(son);
-
-	const planets = new THREE.Group();
-	const geometry1 = new THREE.SphereBufferGeometry(1, 32, 32);
+	//we could use both material.normalmap or normalmap which i tihnk
 	const material1 = new THREE.MeshStandardMaterial({
 		color: 0xff69b4,
 	});
-	const Pink = new THREE.Mesh(geometry1, material1);
 	(material1.normalMap = sunNormal),
-		(material1.emissive = new THREE.Color(1, 105 / 255, 180 / 255)),
-		(material1.emissiveIntensity = 1),
-		(material1.createEmissiveMap = createEmissiveMap());
+	(material1.emissive = new THREE.Color(1, 105 / 255, 180 / 255)),
+	(material1.emissiveIntensity = 1),
+	(material1.createEmissiveMap = createEmissiveMap());
+	const geometry1 = new THREE.SphereBufferGeometry(1, 32, 32);
+	const Pink = new THREE.Mesh(geometry1, material1);
 	Pink.position.set(-3, 4, 20);
 	planets.add(Pink);
 
-	const planetGeo2 = new THREE.SphereBufferGeometry(scaler, 32, 32);
+	const planetGeo = new THREE.SphereBufferGeometry(scaler, 32, 32);
+	const Sun2 = new THREE.Mesh(geometry, material);
+	
 	const earthMat = new THREE.MeshToonMaterial({
 		color: 0x49ef4,
 		normalMap: earthNormal,
 	});
-
-	const Earth = new THREE.Mesh(planetGeo2, earthMat);
-
+	const Earth = new THREE.Mesh(planetGeo, earthMat);
 	Earth.position.set(rngPosX, rngPosY, 15);
-
-	// Make planets
-	const moon = makePlanet(0.2, 32, 32, "grey", moonNormal, 0.2, 0.2, planDist);
-	planets.add(moon);
-
-	const mars = makePlanet(0.4, 32, 32, 0xbea7b2, marsNormal, -4, 4, 0);
-	planets.add(mars);
-
-	const jupiter = makePlanet(4, 32, 32, "brown", jupNormal, 6.5, -6.5, 0);
-	planets.add(jupiter);
-
-	const ringGeo = new THREE.SphereGeometry(1.6, 64, 32, 0, 0.04, 0, 10);
-	const ringMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-	const planetRing = new THREE.Mesh(ringGeo, ringMat);
-	planetRing.position.set(0, 1, 0);
-	scene.add(planetRing);
 
 	document.addEventListener("mousemove", mouseMove, false);
 
-	const sideObj = new THREE.Group();
-	const firstPersonObj = new THREE.Group();
-	const gltfLoader = new GLTFLoader();
 	const url = "Objects/scene.gltf";
 	gltfLoader.load(url, (gltf) => {
 		const root = gltf.scene;
@@ -174,7 +168,45 @@ function main() {
 		root.add(camera);
 	});
 
-	//dit stuk is nogal moeilijk om te laten overerfen i.v.m. het groep idee en de translaties van de schepen
+	initPlanets();
+	makeLights();
+	loader();
+	randomLight();
+	randomPos();
+	resize();
+	audio();
+	son.add(Sun);
+	son.add(Sun2);
+	son.position.y = 4;
+	scene.add(son);
+	scene.add(son);
+	scene.add(sideObj);
+	scene.add(firstPersonObj);
+	scene.add(Pink);
+
+	const L4 = new THREE.PointLight(0xff69b4, 100, 550, 20);
+	L4.position.set(0, 1, 1);
+	Pink.add(L4);
+
+	function initPlanets(){
+		const moon = makePlanet(0.2, 32, 32, "grey", moonNormal, 0.2, 0.2, planDist);
+		planets.add(moon);
+	
+		const mars = makePlanet(0.4, 32, 32, 0xbea7b2, marsNormal, -4, 4, 0);
+		planets.add(mars);
+	
+		const jupiter = makePlanet(4, 32, 32, "brown", jupNormal, 6.5, -6.5, 0);
+		planets.add(jupiter);
+	
+		const ringGeo = new THREE.SphereGeometry(1.6, 64, 32, 0, 0.04, 0, 10);
+		const ringMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+		const planetRing = new THREE.Mesh(ringGeo, ringMat);
+		planetRing.position.set(0, 1, 0);
+		scene.add(planetRing);
+		son.add(jupiter);
+		son.add(mars);
+	}
+
 	function loader() {
 		for (let i = 0; i < 4; i++) {
 			const posX =
@@ -190,80 +222,29 @@ function main() {
 			});
 		}
 	}
+
+	function resize(){
+			window.addEventListener("resize", () => {
+			sizes.width = window.innerWidth;
+			sizes.height = window.innerHeight;
+			camera.aspect = sizes.width / sizes.height;
+			camera.updateProjectionMatrix();
+			renderer.setSize(sizes.width, sizes.height);
+			renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+		});
+	}
+
+
 	
-	loader();
-	randomLight();
-	randomPos();
-	son.add(jupiter);
-	son.add(mars);
-	scene.add(galaxy, galaxyMesh);
-	scene.add(galaxy2, galaxyMesh2);
-	scene.add(son);
-	scene.add(sideObj);
-	scene.add(firstPersonObj);
-
-	const L1 = new THREE.PointLight(0xff0000, 10, 500, 10);
-	L1.position.set(0, -5, 0, 1);
-	const L2 = new THREE.PointLight(0xffa500, 10, 500, 5);
-	L2.position.set(0, 4, 0, 1.5);
-	const L3 = new THREE.PointLight(0xffffff, 1, 500, 7);
-	L3.position.set(0, 10, 0, 1.5);
-	const L4 = new THREE.PointLight(0xff69b4, 100, 550, 20);
-	L4.position.set(0, 1, 1);
-	Pink.add(L4);
-	scene.add(Pink);
-
-	const pointlighthelper = new THREE.PointLightHelper(L2, 1);
-	const lights = new THREE.Group();
-	lights.add(pointlighthelper);
-	lights.add(L1);
-	lights.add(L2);
-	lights.add(L3);
-	scene.add(lights);
-
-	const sizes = {
-		width: window.innerWidth,
-		height: window.innerHeight,
-	};
-
-	window.addEventListener("resize", () => {
-		sizes.width = window.innerWidth;
-		sizes.height = window.innerHeight;
-		camera.aspect = sizes.width / sizes.height;
-		camera.updateProjectionMatrix();
-		renderer.setSize(sizes.width, sizes.height);
-		renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-	});
-	camera = new THREE.PerspectiveCamera(
-		100,
-		sizes.width / sizes.height,
-		0.1,
-		200
-	);
-	camera.position.set(11.5, 2, 0.5, 5000);
-	const listener = new THREE.AudioListener();
-	camera.add(listener);
-	const sound = new THREE.Audio(listener);
-	const audiPlayer = new THREE.AudioLoader();
-	//verander cosmic met : Imperialz
-	audiPlayer.load("Music/cosmic.mp3", function (buffer) {
-		sound.setLoop(true);
-		sound.setBuffer(buffer);
-		sound.setVolume(0.05);
-		sound.play();
-	});
 	renderer.setSize(sizes.width, sizes.height);
 	renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 	renderer.setClearColor(new THREE.Color("#000000"), 1);
 
-	const stats = Stats();
 	document.body.appendChild(stats.dom);
-	const clock = new THREE.Clock();
 	function tick() {
 		const elapsedTime = clock.getElapsedTime();
 		son.rotation.z = 0.2 * elapsedTime;
-		galaxyMesh.rotation.y = elapsedTime * 0.000004;
-		galaxyMesh2.rotation.z = 0.000002 * elapsedTime;
+
 		Earth.rotation.z = 0.4 * elapsedTime;
 		firstPersonObj.translateZ(0.02);
 		sideObj.translateZ(0.002);
@@ -273,6 +254,11 @@ function main() {
 	}
 	tick();
 }
+//-----------------------------------------------------//
+// Seperate functions put outside of main()
+//-----------------------------------------------------//
+
+
 
 function makePlanet(
 	radius,
@@ -366,4 +352,48 @@ function mouseMove(event) {
 	mouseY = +(event.clientY / window.innerHeight) * 10 + 1;
 	camera.rotation.x = mouseY / scale;
 	camera.rotation.y = mouseX / scale;
+}
+
+function audio(){
+	const sizes = {
+		width: window.innerWidth,
+		height: window.innerHeight,
+	};
+	camera = new THREE.PerspectiveCamera(
+		100,
+		sizes.width / sizes.height,
+		0.1,
+		200
+	);
+	camera.position.set(11.5, 2, 0.5, 5000);
+
+	const listener = new THREE.AudioListener();
+	camera.add(listener);
+	const sound = new THREE.Audio(listener);
+	const audiPlayer = new THREE.AudioLoader();
+	//verander cosmic met : Imperialz
+	audiPlayer.load("Music/cosmic.mp3", function (buffer) {
+		sound.setLoop(true);
+		sound.setBuffer(buffer);
+		sound.setVolume(0.05);
+		sound.play();
+	});
+}
+
+function makeLights(){
+	const L1 = new THREE.PointLight(0xff0000, 10, 500, 10);
+	L1.position.set(0, -5, 0, 1);
+	const L2 = new THREE.PointLight(0xffa500, 10, 500, 5);
+	L2.position.set(0, 4, 0, 1.5);
+	const L3 = new THREE.PointLight(0xffffff, 1, 500, 7);
+	L3.position.set(0, 10, 0, 1.5);
+	
+
+	const pointlighthelper = new THREE.PointLightHelper(L2, 1);
+	const lights = new THREE.Group();
+	lights.add(pointlighthelper);
+	lights.add(L1);
+	lights.add(L2);
+	lights.add(L3);
+	scene.add(lights);
 }
